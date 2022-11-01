@@ -113,12 +113,12 @@ class MultiCrossEntropyLoss(Op):
 
 # 测试部分(无model)
 
-X = paddle.to_tensor([[1,10,3],[1,2,9]], dtype = 'float32')
-y = paddle.to_tensor([1,2])
+# X = paddle.to_tensor([[1,10,3],[1,2,9]], dtype = 'float32')
+# y = paddle.to_tensor([1,2])
 
-Loss = MultiCrossEntropyLoss()
+# Loss = MultiCrossEntropyLoss()
 
-print(Loss(X,y))
-print(Loss.predicts)
-print(Loss.backward())
+# print(Loss(X,y))
+# print(Loss.predicts)
+# print(Loss.backward())
 
