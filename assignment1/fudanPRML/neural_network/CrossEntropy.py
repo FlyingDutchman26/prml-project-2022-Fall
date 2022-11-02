@@ -1,5 +1,5 @@
-from re import L
 import paddle
+from paddle.nn.functional import one_hot
 
 
 class Op(object):
@@ -62,7 +62,7 @@ class BinaryCrossEntropyLoss(Op):
         self.model.backward(loss_grad_predicts)
 
 class MultiCrossEntropyLoss(Op):
-    def __init__(self,model):
+    def __init__(self,model = None):
         self.input = None
         self.predicts = None
         self.log_predicts = None
@@ -73,7 +73,7 @@ class MultiCrossEntropyLoss(Op):
     def __call__(self, predicts, labels):
         return self.forward(predicts, labels)
 
-    def forward(self, X, labels):
+    def forward_init(self, X, labels):
         """
         输入：
             - X : input：softmax前的值，shape=[N, D]，N为样本数量, D 为 类别数量 
@@ -81,6 +81,7 @@ class MultiCrossEntropyLoss(Op):
         输出：
             - 损失值：shape=[1]
         """
+        # 这是paddle书的版本，居然loss是用循环计算的，特别慢
         self.input = X
         self.predicts = softmax(self.input)
         
@@ -98,7 +99,33 @@ class MultiCrossEntropyLoss(Op):
             loss -= self.log_predicts[i][index]
         return loss / self.num
     
-    def backward(self):
+    def forward(self, X, labels):
+        """
+        输入：
+            - X : input：softmax前的值，shape=[N, D]，N为样本数量, D 为 类别数量 
+            - labels：真实标签，shape=[N, 1]
+        输出：
+            - 损失值：shape=[1]
+        """
+        # 这是我自己优化后的用矩阵的版本，非常快
+        self.input = X
+        self.predicts = softmax(self.input)
+        
+        x_max= paddle.max(X,axis=1,keepdim=True)
+        x_exp = paddle.exp(self.input - x_max)
+        self.log_predicts = X - x_max - paddle.log(paddle.sum(x_exp,axis=1, keepdim=True))
+        # 使用上述方法可以避免溢出 https://blog.csdn.net/muyuu/article/details/122757470
+        # self.log_predicts = paddle.log(self.predicts) # 这是常规方法
+        self.labels = labels
+        self.num = self.predicts.shape[0]
+        
+        loss = 0
+        one_hot_labels = one_hot(self.labels,num_classes=10).t()
+        loss =  -1/self.num * paddle.sum( paddle.diag(paddle.matmul(self.log_predicts,one_hot_labels)) )
+        return loss
+    
+    def backward_init(self):
+        # 自己推导的版本
         loss_grads_inputs = paddle.zeros(shape = self.input.shape,dtype = 'float32')
         for n in range(0,self.num):
             # print('debug 1:',self.predicts[n])
@@ -108,17 +135,28 @@ class MultiCrossEntropyLoss(Op):
             index = self.labels[n]
             loss_grads_inputs[n] = -1/(self.num*self.predicts[n][index]) * grad_predicts_inputs_n[index]
         self.model.backward(loss_grads_inputs)
-        # return loss_grads_inputs
+        #return loss_grads_inputs
+    
+    def backward(self):
+        # 网上推导的快速版本，神奇
+        one_hot_labels = one_hot(self.labels,num_classes=10)
+        loss_grads_inputs = 1/(self.num)*(self.predicts - one_hot_labels)
+        self.model.backward(loss_grads_inputs)
+        #return loss_grads_inputs
+
+
+
 
 
 # 测试部分(无model)
 
-# X = paddle.to_tensor([[1,10,3],[1,2,9]], dtype = 'float32')
-# y = paddle.to_tensor([1,2])
+# X = paddle.to_tensor([[0,1,2,3,4,5,6,7,8,15],[0,1,2,3,4,5,6,7,8,9]], dtype = 'float32')
+# y = paddle.to_tensor([0,3])
 
 # Loss = MultiCrossEntropyLoss()
 
 # print(Loss(X,y))
 # print(Loss.predicts)
+# print(Loss.backward_init())
 # print(Loss.backward())
 
