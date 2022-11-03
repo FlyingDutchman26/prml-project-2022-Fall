@@ -148,7 +148,7 @@ class MultiCrossEntropyLoss(Op):
 
 
 
-# 测试部分(无model)
+# 测试部分(需要去掉model输入，然后让函数返回值)
 
 # X = paddle.to_tensor([[0,1,2,3,4,5,6,7,8,15],[0,1,2,3,4,5,6,7,8,9]], dtype = 'float32')
 # y = paddle.to_tensor([0,3])

@@ -37,14 +37,14 @@ class RunnerV2_1(object):
             start = time.perf_counter()
             logits = self.model(X)
             end = time.perf_counter()
-            print('前向计算时间',end-start,'second')
+            #print('前向计算时间',end-start,'second')
             
             # 计算交叉熵损失
             start = time.perf_counter()
             trn_loss = self.loss_fn(logits, y) # return a tensor
             self.train_loss.append(trn_loss.item())
             end = time.perf_counter()
-            print('计算交叉熵损失时间',end-start,'second')
+            #print('计算交叉熵损失时间',end-start,'second')
             
             # 计算评估指标
             trn_score = self.metric(logits, y).item()
@@ -53,7 +53,7 @@ class RunnerV2_1(object):
             start = time.perf_counter()
             self.loss_fn.backward()
             end = time.perf_counter()
-            print('反向传播时间',end-start,'second')
+            #print('反向传播时间',end-start,'second')
             
             # 参数更新
             self.optimizer.step()
@@ -70,7 +70,7 @@ class RunnerV2_1(object):
                 print(f"[Train] epoch: {epoch}/{num_epochs}, loss: {trn_loss.item()}")
             
             end_epoch = time.perf_counter()
-            print('本轮epoch训练时间:',end_epoch-start_epoch,'second')    
+            #print('本轮epoch训练时间:',end_epoch-start_epoch,'second')    
                 
     def evaluate(self, data_set):
         X, y = data_set
