@@ -1,5 +1,7 @@
 import paddle
-
+import numpy as np
+from fudanPRML.neural_network.Layer.ReLU import ReLU
+from fudanPRML.neural_network.Layer.Logistic import Logistic
 class Op(object):
     def __init__(self):
         pass
@@ -15,10 +17,16 @@ class Op(object):
     
     
 class Linear(Op):
-    def __init__(self, input_size, output_size, name, weight_init=paddle.standard_normal, bias_init=paddle.zeros):
+    def __init__(self, input_size, output_size, name, act_fn = Logistic, bias_init=paddle.zeros):
         self.params = {}
-        self.params['W'] = weight_init(shape=[input_size, output_size])
-        self.params['b'] = bias_init(shape=[1, output_size])
+        if act_fn == Logistic:
+            # 即为Logistic
+            self.params['W'] = paddle.normal(mean=0, std= np.sqrt(1/input_size), shape=[input_size, output_size])
+            self.params['b'] = bias_init(shape=[1, output_size])
+        else:
+            # 即为ReLU
+            self.params['W'] = paddle.normal(mean=0, std= np.sqrt(2/input_size), shape=[input_size, output_size])
+            self.params['b'] = bias_init(shape=[1, output_size]) + 0.01
 
         self.inputs = None
         self.grads = {}

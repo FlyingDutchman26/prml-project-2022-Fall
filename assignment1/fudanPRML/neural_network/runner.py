@@ -67,7 +67,7 @@ class RunnerV2_1(object):
                     self.save_model(save_dir)
 
             if log_epochs and epoch % log_epochs == 0:
-                print(f"[Train] epoch: {epoch}/{num_epochs}, loss: {trn_loss.item()}")
+                print(f"[Train] epoch: {epoch}/{num_epochs}, loss: {trn_loss.item()}, score: {trn_score}")
             
             end_epoch = time.perf_counter()
             #print('本轮epoch训练时间:',end_epoch-start_epoch,'second')    

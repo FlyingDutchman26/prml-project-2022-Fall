@@ -16,12 +16,12 @@ class Op(object):
         raise NotImplementedError
     
 class Model_MLP_L2(Op):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size,act_fn = Logistic):
         # 线性层
-        self.fc1 = Linear(input_size, hidden_size, name="fc1")
+        self.fc1 = Linear(input_size, hidden_size, name="fc1",act_fn = act_fn)
         # Logistic激活函数层
-        self.act_fn1 = Logistic()
-        self.fc2 = Linear(hidden_size, output_size, name="fc2")
+        self.act_fn1 = act_fn()
+        self.fc2 = Linear(hidden_size, output_size, name="fc2",act_fn = act_fn)
 
         self.layers = [self.fc1, self.act_fn1, self.fc2]
 
@@ -48,18 +48,18 @@ class Model_MLP_L2(Op):
         loss_grad_inputs = self.fc1.backward(loss_grad_z1)
         
 class Model_MLP_L5(Op):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size = 10,act_fn = Logistic):
         # Logistic激活函数层
-        self.act_fn1 = Logistic()
-        self.act_fn2 = Logistic()
-        self.act_fn3 = Logistic()
-        self.act_fn4 = Logistic()
+        self.act_fn1 = act_fn()
+        self.act_fn2 = act_fn()
+        self.act_fn3 = act_fn()
+        self.act_fn4 = act_fn()
         # 线性层
-        self.fc1 = Linear(input_size, 512, name="fc1")
-        self.fc2 = Linear(512, 256, name="fc2")
-        self.fc3 = Linear(256,128,name= 'fc3')
-        self.fc4 = Linear(128,64,name='fc4')
-        self.fc5 = Linear(64,10,name='fc5')
+        self.fc1 = Linear(input_size, 512, name="fc1",act_fn=act_fn)
+        self.fc2 = Linear(512, 256, name="fc2",act_fn = act_fn)
+        self.fc3 = Linear(256,128,name= 'fc3',act_fn = act_fn)
+        self.fc4 = Linear(128,64,name='fc4',act_fn = act_fn)
+        self.fc5 = Linear(64,output_size,name='fc5',act_fn = act_fn)
 
         self.layers = [self.fc1,self.fc2,self.fc3,self.fc4,self.fc5,self.fc5]
 
