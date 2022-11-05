@@ -18,11 +18,12 @@ class Op(object):
     
 class ReLU(Op):
     def __init__(self):
-        self.mask = None
+        self.unmask = None
         self.params = None
             
     def forward(self, X):
-        # self.mask = (X > 0)
+        self.unmask = (X > 0)
+        self.unmask = self.unmask.cast('float32')
         # return paddle.multiply(X,self.mask)
         return paddle.maximum(X, paddle.to_tensor(0.))
 
@@ -33,7 +34,7 @@ class ReLU(Op):
         此函数输出为最终loss对本层输入的梯度
         '''
 
-        return paddle.maximum(grads,paddle.to_tensor(0.))
+        return paddle.multiply(grads,self.unmask)
 
 class Leaky_ReLU(Op):
     def __init__(self,negative_slope = 0.1):
@@ -53,4 +54,4 @@ class Leaky_ReLU(Op):
         此函数输出为最终loss对本层输入的梯度
         '''
 
-        return paddle.maximum(grads,paddle.to_tensor(0.)) + self.negative_slope*paddle.minimum(grads,paddle.to_tensor(0.))
+        pass
