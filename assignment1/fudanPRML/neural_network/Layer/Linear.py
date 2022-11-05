@@ -30,9 +30,11 @@ class Linear(Op):
 
         self.inputs = None
         self.grads = {}
-
+        self.momentum = {}
         self.name = name
-
+        self.momentum['W'] = paddle.zeros(shape=[input_size,output_size])
+        self.momentum['b'] = paddle.zeros(shape=[1,output_size])
+        
     def forward(self, inputs):
         self.inputs = inputs
         outputs = paddle.matmul(self.inputs, self.params['W']) + self.params['b']
