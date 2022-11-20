@@ -125,7 +125,7 @@ class MultiCrossEntropyLoss(Op):
         return loss
     
     def backward_init(self):
-        # 自己推导的版本
+        # 自己推导的版本 是对的但是慢
         loss_grads_inputs = paddle.zeros(shape = self.input.shape,dtype = 'float32')
         for n in range(0,self.num):
             # print('debug 1:',self.predicts[n])
